@@ -1,0 +1,22 @@
+{
+  "name": "memet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "lite-server"
+  },
+  "author": "ExorTek",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "es6-module-loader": "^0.17.11",
+    "express": "^4.17.1",
+    "traceur": "^0.0.108"
+  },
+  "devDependencies": {
+    "cors": "^2.8.5",
+    "lite-server": "^2.2.0"
+  }
+}
