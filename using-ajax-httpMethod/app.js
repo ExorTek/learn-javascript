@@ -60,28 +60,28 @@ class Request {
 
 const request = new Request();
 
-// request.get(apiURL, (err, response) => {
-//     if (err === null) {
-//         console.log(response);
-//     } else {
-//         console.log(err);
-//     }
-// });
-//
-// request.post(apiURL, {userId: 1, title: "Langaç"}, (err, response) => {
-//     if (err === null) {
-//         console.log(response);
-//     } else {
-//         console.log(err);
-//     }
-// })
-// request.put(apiURL, {id: 1, title: 'foo', body: 'bar', userId: 1,}, (err, response) => {
-//     if (err === null) {
-//         console.log(response);
-//     } else {
-//         console.log(err);
-//     }
-// })
+request.get(apiURL, (err, response) => {
+    if (err === null) {
+        console.log(response);
+    } else {
+        console.log(err);
+    }
+});
+
+request.post(apiURL, {userId: 1, title: "Langaç"}, (err, response) => {
+    if (err === null) {
+        console.log(response);
+    } else {
+        console.log(err);
+    }
+})
+request.put(apiURL, {id: 1, title: 'foo', body: 'bar', userId: 1,}, (err, response) => {
+    if (err === null) {
+        console.log(response);
+    } else {
+        console.log(err);
+    }
+})
 request.delete(apiURL, {id: 1, title: 'foo', body: 'bar', userId: 1,}, (err, response) => {
     if (err === null) {
         console.log(response);
