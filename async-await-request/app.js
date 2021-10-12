@@ -29,7 +29,7 @@ class Request {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json; charset=UTF-8'}
         });
-        return await response.json();
+        return "Deleted successfully.";
     }
 }
 
