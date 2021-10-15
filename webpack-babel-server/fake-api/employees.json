@@ -1,0 +1,28 @@
+{
+  "employees": [
+    {
+      "name": "Mehmet Demirel",
+      "department": "Programming",
+      "salary": 4000,
+      "id": 1
+    },
+    {
+      "name": "Bettie Bell",
+      "department": "Fa",
+      "salary": 5000,
+      "id": 2
+    },
+    {
+      "name": "John Doe",
+      "department": "Ba",
+      "salary": 8000,
+      "id": 3
+    },
+    {
+      "name": "Alis Hoe",
+      "department": "Programming",
+      "salary": 600,
+      "id": 4
+    }
+  ]
+}
