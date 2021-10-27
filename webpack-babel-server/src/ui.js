@@ -54,4 +54,38 @@ export class UI {
             div.remove();
         }, 1000);
     };
+
+    deleteEmployeeFromUI(element) {
+        element.remove();
+    };
+
+    toggleUpdateButton(target) {
+        if (this.updateBtn.style.display === "none") {
+            this.updateBtn.style.display = "block";
+            this.addEmployeeInfoToInputs(target);
+        } else {
+            this.updateBtn.style.display = "none";
+            this.clearInputs();
+        }
+    };
+
+    addEmployeeInfoToInputs(target) {
+        const children = target.children;
+        this.nameInput.value = children[0].textContent;
+        this.departInput.value = children[1].textContent;
+        this.salaryInput.value = children[2].textContent;
+    };
+
+    updateEmployeeOnUI(employee, parent) {
+        parent.innerHTML += `
+             <tr>
+                    <td>${employee.name}</td>
+                    <td>${employee.department}</td>
+                    <td>${employee.salary}</td>
+                    <td>${employee.id}</td>
+                    <td><a href="#" id="update-employee" class="btn btn-danger">Güncelle</a></td>
+                    <td><a href="#" id="delete-employee" class="btn btn-danger">Sil</a></td>
+             </tr>
+            `;
+    };
 }

@@ -7,10 +7,10 @@ const nameInput = document.getElementById("name");
 const departmentInput = document.getElementById("department");
 const salaryInput = document.getElementById("salary");
 const employeeList = document.getElementById("employees");
-const updateEmployeeBtn = document.getElementById("update-employee");
+const updateEmployeeBtns = document.getElementById("update");
 const request = new Request(apiURL);
 const ui = new UI();
-
+let updateState = null;
 
 eventListeners();
 
@@ -18,7 +18,8 @@ eventListeners();
 function eventListeners() {
     document.addEventListener("DOMContentLoaded", getAllEmployees);
     forms.addEventListener("submit", addToEmployee);
-    updateEmployeeBtn.addEventListener("click",updateEmployee);
+    employeeList.addEventListener("click", updateOrDeleteEmployee);
+    updateEmployeeBtns.addEventListener('click', updateEmployee);
 }
 
 function getAllEmployees() {
@@ -44,9 +45,49 @@ function addToEmployee(e) {
     ui.clearInputs();
     e.preventDefault();
 }
-function updateEmployee(e) {
 
+function updateOrDeleteEmployee(e) {
+    if (e.target.id === "delete-employee") {
+        deleteEmployee(e.target);
+    } else if (e.target.id === "update-employee") {
+        updateEmployeeController(e.target.parentElement.parentElement);
+    }
+    e.preventDefault();
 
+}
+
+function deleteEmployee(targetEmployee) {
+    const id = targetEmployee.parentElement.previousElementSibling.previousElementSibling.textContent;
+    request.delete(id).then(message => {
+        ui.displayMessages(message, "success");
+        ui.deleteEmployeeFromUI(targetEmployee.parentElement.parentElement);
+    }).catch(err => ui.displayMessages(err, "danger"));
+}
+
+function updateEmployeeController(targetEmployee) {
+    ui.toggleUpdateButton(targetEmployee);
+    if (updateState === null) {
+        updateState = {
+            updateId: targetEmployee.children[3].textContent,
+            updateParent: targetEmployee
+        }
+    } else {
+        updateState = null;
+    }
+}
+
+function updateEmployee() {
+    if (updateState) {
+        const data = {
+            name: nameInput.value.trim(),
+            department: departmentInput.value.trim(),
+            salary: Number(salaryInput.value.trim())
+        };
+        request.put(updateState.updateId, data).then(message => {
+            ui.displayMessages(`Employee update successfully ${message}`, "success")
+            ui.updateEmployeeOnUI(updateEmployee, updateState.updateParent);
+        }).catch(err => ui.displayMessages(`Employee update unsuccessful! ${err}`, "danger"));
+    }
 }
 
 // request.get()
