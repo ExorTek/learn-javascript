@@ -9,7 +9,7 @@ function Header() {
                 <div className="cursor-pointer" onClick={() => navigate("/")}>LOGO</div>
                 <ul style={{gap: 20}} className="flex items-center ">
                     <li>
-                        <Link to={'/product'}>
+                        <Link className="text-white" to={'/product'}>
                             Add Product
                         </Link>
                     </li>
