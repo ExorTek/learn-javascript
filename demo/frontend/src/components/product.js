@@ -9,7 +9,7 @@ function Product({product, deleteProduct}) {
     return (
         <Card sx={{maxWidth: 345, width: 345}} className="mt-5 flex flex-col justify-between">
             <CardMedia
-                style={{width: "100%", height: 380, objectFit: "cover"}}
+                style={{width: "100%", height: 380, objectFit: "contain"}}
                 component="img"
                 height="140"
                 image={`${product.productImages[0]}`}
