@@ -3,42 +3,44 @@ import axiosApi from "../axios/axiosApi";
 import {useSearchParams, useNavigate} from "react-router-dom";
 import Select from 'react-select';
 import {toast} from 'react-toastify';
+import UploadPhoto from "./upload";
+import UploadPhotoModal from "./uploadModal";
+import ImagePreviewer from "./imagePreviewer";
 
 function ProductForm() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams('');
     const id = searchParams.get('id');
-    const [product, setProduct] = useState({size: []});
+    const [product, setProduct] = useState({size: [], productImages: []});
     const [listCategories, setListCategories] = useState([]);
     const [listBrands, setListBrands] = useState([]);
     const [listSize, setListSize] = useState([]);
     const [loadingData, setLoadingData] = useState({loading: false, message: ""});
     toast.loading(loadingData);
-    const handleCheckbox = (event) => {
-        let value = event.target.value
-        let index = product.size.findIndex(size => size._id == value)
-        if (index == -1) {
-            product.size.push({_id: value, size: listSize.find(size => size._id == value).size});
-        } else {
-            product.size = product.size.splice(index, 1)
-        }
-        setProduct({...product})
-    };
-    const handleFile = (event) => {
+    //Seçenek 1 : User kendisi kırpar
+    const handleFile = (files) => {
         let data = new FormData();
-        if (event.target.files && event.target.files.length > 0) {
-            let files = event.target.files
+        if (files && files.length > 3) {
             setLoadingData({
                 loading: true,
                 message: `Image${files.length > 1 ? 's' : ''} downloading, wait...`
             })
             for (let i = 0; i < (files.length > 4 ? 4 : files.length); i++) {
-                data.append("files", files[i]);
+                data.append("files", files[i].originFileObj);
             }
         }
         updateProductImage(data);
-        event.preventDefault();
-    };
+    }
+    //Seçenek 2 : Belirtilen ölçülerde otomatik kırpar
+    // const handleFile = (file) => {
+    //     let data = new FormData();
+    //     setLoadingData({
+    //         loading: true,
+    //         message: `Image uploading, wait...`
+    //     })
+    //     data.append("files", file);
+    //     updateProductImage(data);
+    // };
     const updateProductImage = (data) => {
         axiosApi({
             method: 'post',
@@ -51,7 +53,7 @@ function ProductForm() {
             setLoadingData({loading: false, message: "Uploading images, please wait..."});
             if (response) {
                 setTimeout(() => {
-                    setProduct({...product, productImages: response.data})
+                    setProduct({...product, productImages: [...product.productImages, ...response.data]})
                 }, 100)
             }
         });
@@ -60,13 +62,15 @@ function ProductForm() {
         if (id) {
             axiosApi.get(`product/${id}`).then((response) => {
                 if (!response.data.size) setProduct({...response.data, size: []})
-                else setProduct(response.data);
+                else setProduct({...response.data, size: response.data.size.map(si => si._id)});
             });
         }
     };
     const getSize = () => {
         axiosApi.get('/size').then((response) => {
-            setListSize(response.data);
+            setListSize(response.data.map((c) => {
+                return {label: `${c.size}`, value: `${c._id}`}
+            }))
         });
     };
     const getCategory = () => {
@@ -116,6 +120,7 @@ function ProductForm() {
             });
         }
     };
+
     useEffect(() => {
         getProductById();
         getCategory();
@@ -124,7 +129,7 @@ function ProductForm() {
     }, [id]);
     return (
         <>
-            <div className="w-3/6 mw-full">
+            <div className="w-2/6 mw-full">
                 <div className="flex flex-col mw-full w-3/5 md:w-full">
                     <label className="ml-2 block w-100 font-medium  text-black">Product Name</label>
                     <input
@@ -169,14 +174,14 @@ function ProductForm() {
                         <div className="w-full">
                             <label className="ml-2 w-full font-medium text-black" htmlFor="">Category</label>
                             <Select className="w-full"
-                                    defaultValue={listCategories.find(category => category?.label == product.category?.categoryName)}
+                                    placeholder={`${product.category ? product.category.categoryName : 'Select...'}`}
                                     onChange={(e) => setProduct({...product, category: e.value})}
                                     options={listCategories}/>
                         </div>
                         <div className="ml-4 w-full">
                             <label className="ml-2 w-full font-medium text-black" htmlFor="">Gender</label>
                             <Select className="w-full"
-                                    defaultValue={product.gender}
+                                    placeholder={`${product.gender ? product.gender : 'Select...'}`}
                                     onChange={(e) => setProduct({...product, gender: e.value})}
                                     options={genders}/>
                         </div>
@@ -186,6 +191,7 @@ function ProductForm() {
                     <label className="ml-2 w-full font-medium text-black" htmlFor="">Brand</label>
                     <Select
                         className="w-full"
+                        placeholder={`${product.brand ? product.brand.brandName : 'Select...'}`}
                         defaultValue={listBrands.find(brand => brand?.label == product.brand?.brandName)}
                         onChange={(e) => setProduct({...product, brand: e.value})}
                         options={listBrands}/>
@@ -203,149 +209,70 @@ function ProductForm() {
                     </div>
                 </div>
             </div>
-            <div className="w-3/6 mw-full flex flex-col">
-                <div className="flex flex-row" style={{gap: 10}}>
-                    <div style={{gap: 10}}
-                         className="flex  flex-col items-center w-3/6 border-2 border-gray-300 border-dashed rounded-md">
-                        {product && product.productImages && product.productImages[0] && (
-                            <img className="object-contain w-full" style={{maxHeight: 232}}
-                                 src={product.productImages[0]}
-                                 alt="product image"/>
-                        )}
-                        {!(product && product.productImages && product.productImages[0]) && (
-                            <div className={'mt-12 w-full'}>
-                                <svg className="mx-auto w-full h-12 text-gray-400" stroke="currentColor" fill="none"
-                                     viewBox="0 0 48 48" aria-hidden="true">
-                                    <path
-                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                        strokeWidth={2}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
+            <div className="w-4/6 mw-full flex flex-col">
+                <div className="flex flex-row">
+                    {/*Seçenek 1 : User kendisi kırpar*/}
+                    {!id && (
+                        <UploadPhotoModal photoArray={handleFile}/>
+                    )}
+                    {/*Seçenek 2 : Belirtilen ölçülerde otomatik kırpar*/}
+                    {/*<div className="w-4/6 flex flex-row mx-1" style={{gap: 10, maxHeight: 500}}>*/}
+                    {/*    <UploadPhoto imageSize="large" className="mh-250" handleFile={handleFile}*/}
+                    {/*                 src={product.productImages[0]}/>*/}
+                    {/*    <UploadPhoto imageSize="large" className="mh-250" handleFile={handleFile}*/}
+                    {/*                 src={product.productImages[1]}/>*/}
+                    {/*</div>*/}
+                    {/*<div className="w-2/6 mx-1" style={{gap: 10, maxHeight: 500}}>*/}
+                    {/*    <UploadPhoto imageSize="small" className="mh-120" handleFile={handleFile}*/}
+                    {/*                 src={product.productImages[2]}/>*/}
+                    {/*    <UploadPhoto imageSize="small" className="mt-1 mh-120" handleFile={handleFile}*/}
+                    {/*                 src={product.productImages[3]}/>*/}
+                    {/*</div>*/}
+                </div>
+                {id && (
+                    <label className="ml-2 block w-full font-medium text-black" aria-label="">
+                        Uploaded Product Images:
+                    </label>
+                )}
+                {id && (
+                    <div className="flex flex-row ">
+                        {product.productImages.map((p, i) => (
+                            <ImagePreviewer key={i} value={p} src={p}/>
+                        ))}
+                    </div>
+                )}
+                <div className="flex flex-col mx-auto w-4/5 my-3" style={{gap: 10}}>
+                    <div className="flex flex-col items-center w-full">
+                        <Select className="w-full"
+                                onChange={(e) => {
+                                    if (!product.size.includes(e.value)) {
+                                        setProduct({...product, size: [...product.size, e.value]})
+                                    }
+                                }}
+                                options={listSize}/>
+                    </div>
+                    <div className="flex flex-wrap flex-row" style={{gap: 10}}>
+                        {product.size.map((s, i) => (
+                            <button key={s} className="shadow-sm relative mt-2 pl-1 h-8 border border-gray-300
+                            focus:outline-blue-400 rounded-md hover:bg-blue-100 "
+                                    onClick={() => {
+                                        product.size.splice(i, 1)
+                                        setProduct({...product})
+                                    }}
+                                    style={{width: "31.8%"}}>
+                                {listSize.find(size => size.value == s)?.label}
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     className="h-4 w-4 absolute svg-m text-red-800 -mt-1 -mr-1" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                <div className="flex text-sm items-center justify-center text-gray-600 flex-col w-full">
-                                    <label
-                                        htmlFor="file-upload"
-                                        className="relative text-center items-center flex flex-col justify-center w-full cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                                    >
-                                        <label htmlFor={"file"} className=" w-full">Upload images</label>
-                                        <input multiple id="file" onChange={handleFile}
-                                               className="sr-only text-center  w-full"
-                                               type="file" accept=".jpg, .jpeg, .png" name="file"/>
-                                    </label>
-                                    <p className="pl-1 w-full text-center">click and upload</p>
-                                </div>
-                                <p className="text-xs text-gray-500 text-center w-full">PNG, JPG, JPEG</p>
-                            </div>
-                        )}
-                    </div>
-                    <div
-                        className={`w-3/6 items-center flex justify-center p-4 border-2 border-gray-300 border-dashed rounded-md`}>
-                        {product && product.productImages && product.productImages[1] && (
-                            <img className="object-contain w-full" style={{maxHeight: 232}}
-                                 src={product.productImages[1]}
-                                 alt="product image"
-                            />
-                        )
-                        }
-                        <div
-                            className={`text-center my-12  ${product && product.productImages && product.productImages[1] && ("invisible")}`}>
-                            <svg className="mx-auto w-full h-12 text-gray-400" stroke="currentColor" fill="none"
-                                 viewBox="0 0 48 48" aria-hidden="true">
-                                <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    strokeWidth={2}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-
-                        </div>
+                            </button>
+                        ))}
                     </div>
                 </div>
-                <div className="flex flex-row mt-4" style={{gap: 10}}>
-                    <div
-                        className={`  w-3/6 items-center flex justify-center p-4 border-2 border-gray-300 border-dashed rounded-md `}>
-                        {
-                            product && product.productImages && product.productImages[2] && (
-                                <img className="object-contain w-full" style={{maxHeight: 232}}
-                                     src={product.productImages[2]}
-                                     alt="product image"
-                                />
-                            )
-                        }
-                        <div
-                            className={`text-center my-12  ${product && product.productImages && product.productImages[2] && ("invisible")}`}>
-                            <svg
-                                className="mx-auto h-12 w-12 text-gray-400"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 48 48"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    strokeWidth={2}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                    <div
-                        className={`w-3/6 items-center flex justify-center p-4 border-2 border-gray-300 border-dashed rounded-md`}>
-                        {
-                            product && product.productImages && product.productImages[3] && (
-                                <img className="object-contain w-full" style={{maxHeight: 232}}
-                                     src={product.productImages[3]}
-                                     alt="product image"
-                                />
-                            )
-                        }
-                        <div
-                            className={`text-center my-12  ${product && product.productImages && product.productImages[3] && ("invisible")}`}>
-                            <svg
-                                className="mx-auto h-12 w-12 text-gray-400"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 48 48"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    strokeWidth={2}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <p className="font-light text-gray-400 ml-1">*Please select 4 product image.</p>
-                <div>
-                    <div>
-                        <div className="mt-4 max-w-md flex flex-col">
-                            <label className="ml-2 font-medium text-black" htmlFor="">Size</label>
-                            <div className="flex ml-1 flex-row">
-                                {listSize.map((s, i) => (
-                                    <label className="mr-3" key={i} htmlFor="size">
-                                        <input
-                                            // defaultChecked={product.size?.find(size => size._id == s._id)}
-                                            className="form-check-input appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
-                                            onChange={(e) => handleCheckbox(e)} name="size"
-                                            value={s._id} id="size"
-                                            checked={product.size?.find(size => size._id == s._id)}
-                                            type="checkbox"/>
-                                        {s.size}
-                                    </label>
-                                ))}
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button className="mt-4 mb-5 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4
-            border border-blue-500 hover:border-transparent rounded"
+                <button className="mt-4 w-4/5 mb-5 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold
+            hover:text-white py-2 px-4 mx-auto border border-blue-500 hover:border-transparent rounded"
                         onClick={saveProduct}>{id ? 'Update' : 'Save'} Product
                 </button>
             </div>
