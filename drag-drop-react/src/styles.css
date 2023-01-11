@@ -1,0 +1,11 @@
+.App {
+}
+
+.wrapper {
+  display: flex;
+}
+
+.column {
+  flex: 0 1 auto;
+  max-width: 50%;
+}
