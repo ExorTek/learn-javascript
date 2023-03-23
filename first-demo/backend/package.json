@@ -1,0 +1,27 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Mehmet Demirel",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^11.0.0",
+    "fastify": "^3.25.3",
+    "fastify-cors": "^6.0.2",
+    "fastify-multer": "^2.0.2",
+    "fastify-multipart": "^5.2.1",
+    "fastify-static": "^4.5.0",
+    "mongoose": "^6.1.6",
+    "nanoid": "^3.1.31",
+    "randomstring": "^1.2.1",
+    "slugify": "^1.6.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

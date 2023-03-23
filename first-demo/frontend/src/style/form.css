@@ -1,0 +1,35 @@
+@media (max-width: 768px) {
+    .mw-full {
+        width: 100% !important;
+    }
+
+    .mw-75 {
+        width: 75% !important;
+    }
+}
+
+.mh-120 {
+    max-height: 240px;
+    height: 240px;
+}
+
+.mh-250 {
+    max-height: 490px;
+    height: 490px;
+}
+
+.ReactModal__Overlay {
+    background-color: rgba(0, 0, 0, 0.75) !important;
+}
+.svg-m{
+    top: 0;
+    right: 0;
+}
+.ant-upload.ant-upload-select-picture-card{
+    width: 24% !important;
+    min-height: 300px !important;
+}
+.ant-upload-list-picture-card-container{
+    width: 24% !important;
+    min-height: 300px !important;
+}
