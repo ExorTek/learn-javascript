@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "checkJs": false
+    },
+    "exclude": ["node_modules", "build", ".vscode", "coverage", ".npm", ".yarn"],
+    "typeAcquisition": {
+        "enable": true,
+        "include": ["node"]
+    }
+}

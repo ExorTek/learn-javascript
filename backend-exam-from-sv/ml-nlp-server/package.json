@@ -1,0 +1,19 @@
+{
+    "name": "ml-nlp-server",
+    "version": "1.0.0",
+    "description": "Machine Learning and Natural Language Processing API",
+    "main": "server.js",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "dev": "nodemon server.js"
+    },
+    "dependencies": {
+        "@fastify/cors": "^8.2.0",
+        "@fastify/websocket": "^7.1.2",
+        "fastify": "^4.14.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.21"
+    }
+}
